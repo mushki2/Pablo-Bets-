@@ -1,45 +1,62 @@
-# SocialBet Setup Checklist: GitHub Secrets
+# Pablo-Bets Setup Checklist: Vercel & Uptime Robot
 
-To successfully deploy and run the SocialBet application, you must configure the following secrets in your GitHub repository's settings. Go to `Settings > Secrets and variables > Actions` and create a new repository secret for each item on this list.
+To successfully deploy and run the Pablo-Bets application, you need to configure secrets in your Vercel project and set up an Uptime Robot monitor to trigger the API.
 
-### 1. `VERCEL_DEPLOYMENT_URL`
-This secret is used by the GitHub Action workflow (`.github/workflows/cron.yml`) to trigger your Vercel serverless function periodically.
+### Part 1: Configure Vercel Environment Variables
 
--   **Description**: The full public URL of your Vercel deployment.
--   **Example Value**: `https://socialbet-your-username.vercel.app`
--   **How to get it**: After you deploy your project to Vercel for the first time, Vercel will assign you a public URL. Use that URL here.
+The Python serverless function (`api/mirror-check.py`) requires the following secrets to be set as Environment Variables in your Vercel project.
 
-### 2. `TELEGRAM_BOT_TOKEN`
-This secret is used by the Python serverless function (`api/mirror-check.py`) to send alerts through your Telegram bot.
+**Instructions:**
+1.  Go to your project's dashboard on Vercel.
+2.  Navigate to the **"Settings"** tab.
+3.  Click on **"Environment Variables"** in the left sidebar.
+4.  Add each of the following secrets, making sure they are available to the Serverless Function.
+
+---
+
+**1. `TELEGRAM_BOT_TOKEN`**
 
 -   **Description**: The authentication token for your Telegram Bot.
 -   **How to get it**:
-    1.  Talk to the [BotFather](https://t.me/botfather) on Telegram.
-    2.  Create a new bot by sending the `/newbot` command.
-    3.  Follow the instructions and BotFather will give you a token.
+    1.  Talk to the **@BotFather** on Telegram.
+    2.  Use the `/newbot` command to create a new bot.
+    3.  The BotFather will give you a token. Copy and paste it here.
 
-### 3. `TELEGRAM_CHAT_ID`
-The Python function needs to know which chat to send the alert messages to.
+**2. `TELEGRAM_CHAT_ID`**
 
 -   **Description**: The unique identifier for the Telegram chat, group, or channel where the bot will send alerts.
 -   **How to get it**:
     1.  Add your bot to the desired group or channel.
-    2.  Send a message to the bot (e.g., `/my_id`) in that chat.
-    3.  You can find the chat ID by visiting `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`. Look for the `chat` object in the JSON response.
+    2.  Send a message like `/my_id` in that chat.
+    3.  Find the chat ID by visiting `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`. Look for the `chat` object in the JSON response.
 
-### 4. `ODDS_API_KEY`
-The Python function uses this key to authenticate with The Odds API and fetch live sports betting odds.
+**3. `ODDS_API_KEY`**
 
 -   **Description**: Your personal API key for The Odds API.
--   **How to get it**: Sign up for a free or paid plan on [The Odds API website](https://the-odds-api.com/). Your API key will be available in your user dashboard.
+-   **How to get it**: Sign up on [The Odds API website](https://the-odds-api.com/). Your API key will be in your user dashboard.
 
-### 5. `FIREBASE_SERVICE_ACCOUNT`
-This secret allows the Python function to securely authenticate with your Firebase project to log data to Firestore.
+**4. `FIREBASE_SERVICE_ACCOUNT`**
 
--   **Description**: A JSON object containing the credentials for a Firebase service account.
+-   **Description**: A JSON object containing the credentials for a Firebase service account, which allows the backend to securely connect to Firestore.
 -   **How to get it**:
     1.  Open your Firebase project console.
-    2.  Go to `Project settings` (click the gear icon).
-    3.  Navigate to the `Service accounts` tab.
-    4.  Click the "Generate new private key" button. A JSON file will be downloaded.
--   **IMPORTANT**: Copy the *entire contents* of the downloaded JSON file and paste it as the value for this GitHub secret. It's a multi-line value, and GitHub Secrets supports that.
+    2.  Go to **Project settings** > **Service accounts**.
+    3.  Click **"Generate new private key"**. A JSON file will be downloaded.
+-   **IMPORTANT**: Copy the *entire contents* of the downloaded JSON file and paste it as the value for this environment variable.
+
+---
+
+### Part 2: Set Up Uptime Robot
+
+To trigger your API every 15 minutes, use an external service like Uptime Robot.
+
+**Instructions:**
+1.  **Sign up** for a free account at [UptimeRobot.com](https://uptimerobot.com/).
+2.  Click **"+ Add New Monitor"**.
+3.  Set the **Monitor Type** to **"HTTP(s)"**.
+4.  **Friendly Name**: `Pablo-Bets Mirror Check`
+5.  **URL (or IP)**: `https://your-project-name.vercel.app/api/mirror-check` (Replace with your actual Vercel deployment URL).
+6.  **Monitoring Interval**: **15 minutes**.
+7.  Click **"Create Monitor"**.
+
+Your application is now fully configured!
