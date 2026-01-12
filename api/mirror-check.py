@@ -57,7 +57,7 @@ def log_to_firestore(bet_data):
     except Exception as e:
         print(f"Error logging to Firestore: {e}")
 
-@app.route('/api/mirror-check', methods=['GET'])
+@app.route('/', methods=['GET'])
 def mirror_check_handler():
     """
     Flask route handler for the Vercel Serverless Function.
