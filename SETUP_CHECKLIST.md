@@ -1,6 +1,6 @@
-# Pablo-Bets Setup Checklist: Vercel & GitHub Actions
+# Pablo-Bets Setup Checklist: Vercel & Uptime Robot
 
-To successfully deploy and run the Pablo-Bets application, you need to configure secrets in your Vercel project and in your GitHub repository.
+To successfully deploy and run the Pablo-Bets application, you need to configure secrets in your Vercel project and set up an Uptime Robot monitor to trigger the API.
 
 ### Part 1: Configure Vercel Environment Variables
 
@@ -15,35 +15,48 @@ The Python serverless function (`api/mirror-check.py`) requires the following se
 ---
 
 **1. `TELEGRAM_BOT_TOKEN`**
+
 -   **Description**: The authentication token for your Telegram Bot.
--   **How to get it**: Get it from **@BotFather** on Telegram.
+-   **How to get it**:
+    1.  Talk to the **@BotFather** on Telegram.
+    2.  Use the `/newbot` command to create a new bot.
+    3.  The BotFather will give you a token. Copy and paste it here.
 
 **2. `TELEGRAM_CHAT_ID`**
--   **Description**: The unique ID for the Telegram chat where the bot will send alerts.
--   **How to get it**: Find the chat ID by sending a message to your bot and checking the `getUpdates` endpoint.
+
+-   **Description**: The unique identifier for the Telegram chat, group, or channel where the bot will send alerts.
+-   **How to get it**:
+    1.  Add your bot to the desired group or channel.
+    2.  Send a message like `/my_id` in that chat.
+    3.  Find the chat ID by visiting `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`. Look for the `chat` object in the JSON response.
 
 **3. `ODDS_API_KEY`**
+
 -   **Description**: Your personal API key for The Odds API.
--   **How to get it**: Sign up on [The Odds API website](https://the-odds-api.com/).
+-   **How to get it**: Sign up on [The Odds API website](https://the-odds-api.com/). Your API key will be in your user dashboard.
 
 **4. `FIREBASE_SERVICE_ACCOUNT`**
--   **Description**: The JSON credentials for your Firebase service account.
--   **How to get it**: Generate a new private key in your Firebase project settings under "Service accounts". Copy the entire JSON content.
+
+-   **Description**: A JSON object containing the credentials for a Firebase service account, which allows the backend to securely connect to Firestore.
+-   **How to get it**:
+    1.  Open your Firebase project console.
+    2.  Go to **Project settings** > **Service accounts**.
+    3.  Click **"Generate new private key"**. A JSON file will be downloaded.
+-   **IMPORTANT**: Copy the *entire contents* of the downloaded JSON file and paste it as the value for this environment variable.
 
 ---
 
-### Part 2: Configure GitHub Actions Secret
+### Part 2: Set Up Uptime Robot (Cron Job)
 
-The GitHub Actions workflow requires a secret to know the URL of your Vercel deployment.
+To trigger your API every 15 minutes, use an external service like Uptime Robot.
 
 **Instructions:**
-1.  Go to your GitHub repository.
-2.  Navigate to **"Settings"** > **"Secrets and variables"** > **"Actions"**.
-3.  Click the **"New repository secret"** button.
-4.  Create the following secret:
+1.  **Sign up** for a free account at [UptimeRobot.com](https://uptimerobot.com/).
+2.  Click **"+ Add New Monitor"**.
+3.  Set the **Monitor Type** to **"HTTP(s)"**.
+4.  **Friendly Name**: `Pablo-Bets Mirror Check`
+5.  **URL (or IP)**: `https://your-project-name.vercel.app/api/mirror-check` (Replace with your actual Vercel deployment URL).
+6.  **Monitoring Interval**: **15 minutes**.
+7.  Click **"Create Monitor"**.
 
-**1. `VERCEL_DEPLOYMENT_URL`**
--   **Name**: `VERCEL_DEPLOYMENT_URL`
--   **Value**: `https://your-project-name.vercel.app` (Replace with your actual Vercel deployment URL).
-
-Your application is now fully configured! The GitHub Action will now run every 15 minutes to trigger your API.
+Your application is now fully configured!
