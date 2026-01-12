@@ -1,32 +1,26 @@
 'use client';
 
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import { useEffect, useState } from 'react';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { SDKProvider } from '@twa-dev/sdk-react';
+import { SDKProvider } from '@telegram-apps/sdk-react';
 
-const inter = Inter({ subsets: ['latin'] });
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
 
-// Since we are using 'use client', we can't export metadata from here.
-// It should be defined in a server component or in a metadata file.
-// For the purpose of this MVP, we will omit it from this file.
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  if (!isClient) return null; // Wait for client-side to prevent hydration errors
+
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <SDKProvider>
-          <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
-            <div className="glassmorphism-wrapper">
-              {children}
-            </div>
-          </TonConnectUIProvider>
-        </SDKProvider>
+      <body>
+        <TonConnectUIProvider manifestUrl="https://pablo-bets.vercel.app/tonconnect-manifest.json">
+          <SDKProvider acceptCustomStyles debug>
+            {children}
+          </SDKProvider>
+        </TonConnectUIProvider>
       </body>
     </html>
   );

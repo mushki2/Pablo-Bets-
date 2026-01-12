@@ -1,7 +1,5 @@
 {
-  "url": "https://your-project-name.vercel.app",
-  "name": "SocialBet",
-  "iconUrl": "https://your-project-name.vercel.app/icon.png",
-  "termsOfUseUrl": "https://your-project-name.vercel.app/terms",
-  "privacyPolicyUrl": "https://your-project-name.vercel.app/privacy"
+  "url": "https://pablo-bets.vercel.app",
+  "name": "Pablo-Bets",
+  "iconUrl": "https://pablo-bets.vercel.app/pablo-icon.png"
 }
