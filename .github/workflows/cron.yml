@@ -21,6 +21,10 @@ jobs:
             exit 1
           fi
 
+          # Debugging: Print the full URL being called
+          echo "Pinging URL: ${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/mirror-check"
+
           # Use curl to send a simple GET request to trigger the serverless function.
           # The -f flag makes curl fail silently on server errors (HTTP status code >= 400).
-          curl -f "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/mirror-check"
+          # Adding --verbose to get more detailed output for debugging.
+          curl -f --verbose "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/mirror-check"
