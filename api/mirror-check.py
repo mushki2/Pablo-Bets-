@@ -23,11 +23,9 @@ try:
         cred_json = json.loads(FIREBASE_SERVICE_ACCOUNT_JSON)
         cred = credentials.Certificate(cred_json)
         firebase_admin.initialize_app(cred)
-        print("Firebase initialized successfully.")
-except json.JSONDecodeError:
-    print("Firebase initialization error: The service account JSON is malformed.")
+        print("Firebase initialized for mirror-check.")
 except Exception as e:
-    print(f"An unexpected Firebase initialization error occurred: {e}")
+    print(f"Firebase mirror-check initialization error: {e}")
 
 def send_telegram_alert(message):
     """Sends a message to a predefined Telegram chat."""

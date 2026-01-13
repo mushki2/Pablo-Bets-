@@ -2,29 +2,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // The "PublicLedger" collection is read-only for all authenticated users.
-    // No one can write to it directly; only the server-side logic (our Python function) can.
+    // --- Public Ledger for Transparency ---
+    // All authenticated users can read the public ledger of bets.
+    // Writes are disallowed from the client to ensure integrity; only the backend can log results.
     match /PublicLedger/{betId} {
       allow read: if request.auth != null;
-      allow write: if false; // Disallow all client-side writes
+      allow write: if false;
     }
 
-    // "Users" collection stores user-specific data.
-    // Users can only read and write their own data.
-    match /Users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // "Profiles" collection could store public-facing user info (leaderboard stats).
-    // Allow any authenticated user to read, but only the user themselves can create or update their profile.
-    match /Profiles/{userId} {
-      allow read: if request.auth != null;
+    // --- User Profiles (Public-Facing) ---
+    // Public profiles with non-sensitive data like ROI, win streaks, and display names.
+    // Anyone can read, but only the user themselves can create or update their own profile.
+    match /profiles/{userId} {
+      allow read: if true;
       allow create, update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false; // Prevent users from deleting their profiles
+      allow delete: if false; // Prevent users from deleting their public profiles.
     }
 
-    // This is a catch-all rule that denies access to any other collections
-    // that are not explicitly defined above.
+    // --- User Private Data (Strictly Private) ---
+    // Contains sensitive information like wallet details, balances, and transaction history.
+    // Only the authenticated user can access their own private data document.
+    match /users/{userId} {
+      allow get, list, create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Group Betting Pools ---
+    // Users can read the details of a betting pool.
+    // Creating a new pool is allowed for any authenticated user.
+    // Updating a pool (e.g., to add a participant) should be handled by backend logic via a dedicated endpoint,
+    // but for now, we will allow authenticated users to update. This should be tightened later.
+    match /pools/{poolId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null; // To be refined with more specific rules or backend logic.
+      allow delete: if false;
+    }
+
+    // Default deny all other collections.
     match /{document=**} {
       allow read, write: if false;
     }
