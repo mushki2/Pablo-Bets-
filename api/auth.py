@@ -43,7 +43,7 @@ def is_valid_telegram_data(init_data: str, bot_token: str) -> bool:
         print(f"Validation error: {e}")
         return False
 
-@app.route('/api/auth', methods=['POST'])
+@app.route('/', methods=['POST'])
 def verify_telegram_auth():
     """
     Handles the silent authentication request from the frontend.
