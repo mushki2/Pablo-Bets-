@@ -1,23 +1,21 @@
-'use client';
+import type { Metadata } from 'next';
+import './globals.css';
+import Providers from './providers';
 
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { SDKProvider } from '@telegram-apps/sdk-react';
-import { AuthProvider } from './contexts/AuthContext';
-import './globals.css'; // Assuming you have this for global styles
+export const metadata: Metadata = {
+  title: 'Pablo-Bets',
+  description: 'Social Betting on TON',
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
-        <SDKProvider acceptCustomStyles debug>
-          <TonConnectUIProvider manifestUrl="https://pablo-bets.vercel.app/tonconnect-manifest.json">
-            <AuthProvider>
-              <div className="glassmorphism-wrapper">
-                {children}
-              </div>
-            </AuthProvider>
-          </TonConnectUIProvider>
-        </SDKProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
