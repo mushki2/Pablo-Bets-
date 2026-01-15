@@ -55,18 +55,18 @@ def verify_telegram_auth():
     """
     Handles the silent authentication request from the frontend.
     """
-    data = request.json
-    init_data = data.get('initData')
-
-    if not init_data or not BOT_TOKEN:
-        return jsonify({"error": "Missing initData or bot token configuration."}), 400
-
-    # 1. Validate the Telegram hash
-    if not is_valid_telegram_data(init_data, BOT_TOKEN):
-        return jsonify({"error": "Invalid Telegram data: hash verification failed."}), 403
-
-    # 2. Extract user ID and create Firebase custom token
     try:
+        data = request.json
+        init_data = data.get('initData')
+
+        if not init_data or not BOT_TOKEN:
+            return jsonify({"error": "Missing initData or bot token configuration."}), 400
+
+        # 1. Validate the Telegram hash
+        if not is_valid_telegram_data(init_data, BOT_TOKEN):
+            return jsonify({"error": "Invalid Telegram data: hash verification failed."}), 403
+
+        # 2. Extract user ID and create Firebase custom token
         user_data = dict(parse_qsl(init_data))
         user_info = json.loads(user_data.get('user', '{}'))
         user_id = user_info.get('id')
@@ -80,8 +80,8 @@ def verify_telegram_auth():
         return jsonify({"firebase_token": custom_token.decode('utf-8')})
 
     except Exception as e:
-        print(f"Error creating custom token: {e}")
-        return jsonify({"error": "Failed to create Firebase token."}), 500
+        print(f"An unexpected error occurred in /api/auth: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
 # The 'app' object is the WSGI entry point for Vercel.
 if __name__ == '__main__':
