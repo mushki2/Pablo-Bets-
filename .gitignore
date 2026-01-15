@@ -44,3 +44,4 @@ MANIFEST
 .idea/
 .vscode/
 *.swp
+dev.log

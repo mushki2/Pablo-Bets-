@@ -33,6 +33,13 @@ def is_valid_telegram_data(init_data: str, bot_token: str) -> bool:
         parsed_data = dict(parse_qsl(init_data))
         received_hash = parsed_data.pop('hash')
 
+        # 1. Check timestamp: reject data older than 24 hours
+        auth_date = int(parsed_data.get('auth_date', 0))
+        if datetime.utcnow() - datetime.utcfromtimestamp(auth_date) > timedelta(hours=24):
+            print("Validation error: initData is outdated.")
+            return False
+
+        # 2. Verify hash
         data_check_string = "\n".join(f"{k}={v}" for k, v in sorted(parsed_data.items()))
 
         secret_key = hmac.new("WebAppData".encode(), bot_token.encode(), hashlib.sha256).digest()

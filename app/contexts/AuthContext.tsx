@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { getAuth, signInWithCustomToken, User } from 'firebase/auth';
 import { initializeApp, getApps } from 'firebase/app';
-import { useInitData } from '@telegram-apps/sdk-react';
+import { useLaunchParams } from '@telegram-apps/sdk-react';
 
 // --- Firebase Configuration ---
 // It's crucial that these environment variables are prefixed with NEXT_PUBLIC_
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const initData = useInitData();
+  const lp = useLaunchParams();
   const auth = getAuth();
 
   useEffect(() => {
@@ -48,7 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      if (!initData) {
+      const initDataRaw = lp?.initDataRaw;
+
+      if (!initDataRaw) {
         // This might happen in a non-Telegram environment
         setError('Telegram initData not found.');
         setLoading(false);
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData }),
+          body: JSON.stringify({ initData: initDataRaw }),
         });
 
         if (!response.ok) {
@@ -85,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     silentAuth();
-  }, [initData, auth]);
+  }, [lp?.initDataRaw, auth]);
 
   return (
     <AuthContext.Provider value={{ user, loading, error }}>
