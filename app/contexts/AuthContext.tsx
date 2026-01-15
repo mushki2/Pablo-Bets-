@@ -67,14 +67,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Authentication server error:", errorText);
           try {
-            // Try to parse as JSON to get a structured error message
-            const errorData = JSON.parse(errorText);
+            const errorData = await response.json();
             throw new Error(errorData.error || `Authentication failed with status: ${response.status}`);
           } catch (e) {
-            // If it's not JSON, throw the raw text
+            // Handle cases where the response is not JSON
+            const errorText = await response.text();
             throw new Error(`Authentication failed: ${errorText}`);
           }
         }
