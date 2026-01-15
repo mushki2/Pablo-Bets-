@@ -3,25 +3,42 @@ import crypto from 'crypto';
 import admin from 'firebase-admin';
 
 // --- Firebase Admin Initialization ---
-// Note: Vercel environment variables are automatically available in API routes.
-const FIREBASE_SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
-if (FIREBASE_SERVICE_ACCOUNT && !admin.apps.length) {
+// This function ensures Firebase is initialized only once.
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return true;
+  }
+
+  const FIREBASE_SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!FIREBASE_SERVICE_ACCOUNT) {
+    console.error("Firebase Admin initialization failed: FIREBASE_SERVICE_ACCOUNT env var not set.");
+    return false;
+  }
+
   try {
     const serviceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log("Firebase Admin initialized for /api/auth.");
+    console.log("Firebase Admin initialized successfully for /api/auth.");
+    return true;
   } catch (e) {
     console.error("Firebase Admin initialization error:", e);
+    return false;
   }
 }
+
+const isFirebaseInitialized = initializeFirebaseAdmin();
 
 function unauthorized(msg: string) {
   return NextResponse.json({ error: msg }, { status: 401 });
 }
 
 export async function POST(req: NextRequest) {
+  if (!isFirebaseInitialized) {
+    return NextResponse.json({ error: 'Firebase Admin SDK not initialized. Please check server configuration.' }, { status: 500 });
+  }
+
   try {
     const { initData } = await req.json();
     if (!initData) {
@@ -80,10 +97,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'User ID not found in user data.' }, { status: 400 });
     }
 
-    if (!admin.apps.length) {
-        console.error("Firebase Admin SDK is not initialized.");
-        return NextResponse.json({ error: 'Firebase Admin not initialized.' }, { status: 500 });
-    }
     const customToken = await admin.auth().createCustomToken(String(userId));
 
     return NextResponse.json({ firebase_token: customToken });
